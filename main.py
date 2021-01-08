@@ -23,7 +23,6 @@ HOOKS = [
         "triggers": "commentCard",
         "slack_message": {
             "type": "direct",
-            "recipient": "CARD_ASSIGNMENT",
             "message": " %content%",
         },
     },
@@ -52,6 +51,7 @@ class TrelloApi:
             if card_data["type"] == "commentCard":
                 card.card_action = "commented"
                 card.comment = card_data["data"]["text"]
+                print(card_data)
             result.add(card) 
         return result
 
