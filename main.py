@@ -54,6 +54,7 @@ class TrelloApi:
             if card_data["type"] == "commentCard":
                 card.card_action = "commented"
                 card.comment = card_data["data"]["text"]
+                print(card_data)
             result.add(card) 
         return result
 
@@ -66,6 +67,9 @@ class SlackApi:
         message_text = slack_message["message"]
         message_text = message_text.replace("%content%", card.comment)
         self.client.chat_postMessage(channel="#"+card.name, text=message_text)
+        print(
+            "A message was sent "
+        )
 
 class Hook:
     def __init__(self, hook):
@@ -104,6 +108,8 @@ class Hook:
         except Exception:
             traceback.print_exc()
 
+
+
 def main():
 
     trello_api = TrelloApi()
@@ -124,6 +130,8 @@ def main():
                 )
             for future in futures:
                 future.result()
+        except KeyboardInterrupt:
+            os._exit(0)
         except Exception:
             traceback.print_exc()
         finally:
