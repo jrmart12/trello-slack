@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import threading
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8,10 +9,12 @@ from datetime import datetime
 from slack import WebClient
 from trello import Board, Card, TrelloClient
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv()
+from flask import Flask
+from flask_apscheduler import APScheduler
 
-CHECK_INTERVAL_SECONDS = 5
+app = Flask(__name__)
+
+CHECK_INTERVAL_SECONDS = 10
 TRELLO_API_KEY = os.environ.get('TRELLO_API_KEY')
 TRELLO_API_SECRET = os.environ.get('TRELLO_API_SECRET')
 SLACK_API_KEY = os.environ.get('SLACK_API_KEY')
@@ -51,7 +54,6 @@ class TrelloApi:
             if card_data["type"] == "commentCard":
                 card.card_action = "commented"
                 card.comment = card_data["data"]["text"]
-                print(card_data)
             result.add(card) 
         return result
 
@@ -64,9 +66,6 @@ class SlackApi:
         message_text = slack_message["message"]
         message_text = message_text.replace("%content%", card.comment)
         self.client.chat_postMessage(channel="#"+card.name, text=message_text)
-        print(
-            "A message was sent "
-        )
 
 class Hook:
     def __init__(self, hook):
@@ -105,8 +104,6 @@ class Hook:
         except Exception:
             traceback.print_exc()
 
-
-
 def main():
 
     trello_api = TrelloApi()
@@ -127,12 +124,12 @@ def main():
                 )
             for future in futures:
                 future.result()
-        except KeyboardInterrupt:
-            os._exit(0)
         except Exception:
             traceback.print_exc()
         finally:
             time.sleep(CHECK_INTERVAL_SECONDS)
 
 if __name__ == "__main__":
-    main()
+    x = threading.Thread(target=main)
+    x.start()
+    app.run()
