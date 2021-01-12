@@ -18,12 +18,7 @@ class SlackApi:
 
 @app.route('/webhook', methods=['GET', 'POST']) 
 def webhook():
-    data = request.json
-    if data["action"]["type"] == "commentCard":
-        slack_api = SlackApi()
-        cardName = data["action"]["data"]["card"]["name"]
-        comment = data["action"]["data"]["text"]
-        slack_api.send_message("#"+cardName, comment)
+    data = request.jsons
     return jsonify(data)
 
 if __name__ == '__main__':
