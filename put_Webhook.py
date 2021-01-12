@@ -2,7 +2,7 @@
 # http://docs.python-requests.org
 import requests
 import json
-
+import os
 
 url = "https://api.trello.com/1/webhooks/"
 
@@ -11,10 +11,10 @@ headers = {
 }
 
 query = {
-   'key': 'ee7b8c0523388294d89c0ba192fa5041',
-   'token': '3b6f7d9698ce9552ce5c1ecd9d78617af4388d1581939b967b9a4301adf1d5b5',
+   'key': os.environ.get('TRELLO_API_KEY'),
+   'token': os.environ.get('TRELLO_API_SECRET'),
    'callbackURL': 'https://trello-slack-codex.herokuapp.com/webhook',
-   'idModel': '5ffcc56fdb5424207a7cf9f9'
+   'idModel': os.environ.get('TRELLO_BOARD__id')
 }
 
 response = requests.request(
