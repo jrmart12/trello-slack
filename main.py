@@ -10,6 +10,7 @@ from trello import Board, Card, TrelloClient
 from pathlib import Path
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+CHECK_INTERVAL_SECONDS = 5
 TRELLO_API_KEY = os.environ.get('TRELLO_API_KEY')
 TRELLO_API_SECRET = os.environ.get('TRELLO_API_SECRET')
 SLACK_API_KEY = os.environ.get('SLACK_API_KEY')
@@ -106,24 +107,31 @@ class Hook:
 
 
 def main():
+
     trello_api = TrelloApi()
     slack_api = SlackApi()
 
     hooks = [Hook(x) for x in HOOKS]
     any_starred = any(x.trello_boards == "ALL_STARRED" for x in hooks)
     executor = ThreadPoolExecutor()
-    boards = None
-    if any_starred:
-        boards = trello_api.get_boards()
-    futures = []
-    for hook in hooks:
-        futures.append(
-            executor.submit(hook.execute, trello_api, slack_api, boards)
-        )
-    for future in futures:
-        future.result()
+    while True:
+        try:
+            boards = None
+            if any_starred:
+                boards = trello_api.get_boards()
+            futures = []
+            for hook in hooks:
+                futures.append(
+                    executor.submit(hook.execute, trello_api, slack_api, boards)
+                )
+            for future in futures:
+                future.result()
+        except KeyboardInterrupt:
+            os._exit(0)
+        except Exception:
+            traceback.print_exc()
+        finally:
+            time.sleep(CHECK_INTERVAL_SECONDS)
 
 if __name__ == "__main__":
-    scheduler = BlockingScheduler()
-    scheduler.add_job(main, "interval", seconds=5)
-    scheduler.start()
+    main()
