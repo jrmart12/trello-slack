@@ -20,7 +20,7 @@ class SlackApi:
                     "A message was sent "
                 )                
 
-@app.route('/foo', methods=['GET', 'POST']) 
+@app.route('/webhook', methods=['GET', 'POST']) 
 def webhook():
     data = request.json
     if data["action"]["type"] == "commentCard":
