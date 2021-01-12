@@ -18,7 +18,7 @@ class SlackApi:
 
 @app.route('/webhook', methods=['GET', 'POST']) 
 def webhook():
-    data = request.jsons
+    data = request.json
     return jsonify(data)
 
 if __name__ == '__main__':
