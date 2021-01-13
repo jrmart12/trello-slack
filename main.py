@@ -20,12 +20,14 @@ def message(cardName, comment):
     x = comment.split("(")
     x_x =  x[0].strip()
     for channel_message in slack_channel_messages['messages']:
+        slack_channel_replies = slack_web_client.conversations_replies(channel=get_channel_name(cardName),ts=channel_message["ts"])
+        for channel_reply in slack_channel_replies['messages']:
+            if channel_reply['text'] == x_x:
+                print("entro")
+                return None
         if channel_message['text'] == x_x:
-            slack_channel_replies = slack_web_client.conversations_replies(channel=get_channel_name(cardName),ts=channel_message["ts"])
-            for channel_reply in slack_channel_replies['messages']:
-                if channel_reply['text'] == x_x:
-                    print("entro")
-                    return None
+            print("entro")
+            return None
     slack_web_client.chat_postMessage(channel="#"+cardName, text=comment)
     print(
         "A message was sent "
