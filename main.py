@@ -17,11 +17,11 @@ def get_channel_name(channel_name):
 
 def message(cardName, comment):
     slack_channel_messages = slack_web_client.conversations_history(channel=get_channel_name(cardName),limit=1)
-    slack_channel_replies = slack_web_client.conversations_replies(channel=get_channel_name(cardName),limit=1)
     x = comment.split("(")
     x_x =  x[0].strip()
     for channel_message in slack_channel_messages['messages']:
         if channel_message['text'] == x_x:
+            slack_channel_replies = slack_web_client.conversations_replies(channel=get_channel_name(cardName),ts=channel_message["ts"])
             for channel_reply in slack_channel_replies['messages']:
                 if channel_reply['text'] == x_x:
                     print("entro")
